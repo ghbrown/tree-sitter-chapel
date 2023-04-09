@@ -4,7 +4,6 @@ module.exports = grammar({
     // note: order of rules in this file controls matching precedence
     source_file: $ => repeat(
       choice(
-        $._definition,
         $._statement,
         $._comment,
       )
@@ -17,20 +16,7 @@ module.exports = grammar({
 
     inline_comment: $ => seq(
       '//',
-      $.anything,
-    ),
-
-    _definition: $ => choice(
-      $.function_definition,
-      // TODO: other kinds of definitions
-    ),
-
-    function_definition: $ => seq(
-      'proc',
-      $.identifier,
-      $.argument_list,
-      $._type,
-      $.block_statement
+      $._anything,
     ),
 
     argument_list: $ => seq(
@@ -44,11 +30,23 @@ module.exports = grammar({
       'public',
     ),
 
+    proc_or_iter: $ => choice(
+      'proc',
+      'iter',
+    ),
+
+    procedure_kind: $ => choice(
+      'inline',
+      'export',
+      'extern',
+      'override',
+    ),
+
     _statement: $ => choice(
       $.block_statement,
       $.expression_statement,
-      $.variable_declaration_statement,
       $.return_statement,
+      $.variable_declaration_statement,
       //$.if_statement
     ),
 
@@ -86,6 +84,7 @@ module.exports = grammar({
       $.variable_declaration,
       seq(
         $.variable_declaration,
+        ',',
         $.variable_declaration_list,
       ),
     ),
@@ -96,16 +95,16 @@ module.exports = grammar({
       optional($.initialization_part),
     ),
 
-    type_part: $ => seq(
+    type_part: $ => prec(3,seq(
       ':',
       $.type_expression,
-    ),
+    )),
 
 
-    initialization_part: $ => seq(
+    initialization_part: $ => prec(3,seq(
       '=',
       $._expression,
-    ),
+    )),
 
     _expression: $ => choice(
       //$.literal_expression,
@@ -118,11 +117,11 @@ module.exports = grammar({
       $.identifier,
     ),
 
-    type_expression: $ => choice(
+    type_expression: $ => prec.left(choice(
       $.primitive_type,
       //$.enum_type,
       $._expression,
-    ),
+    )),
 
     primitive_type: $ => choice(
       'void',
@@ -158,15 +157,16 @@ module.exports = grammar({
       ';',
     ),
 
-    identifier: $ => seq(
-      $.letter_or_underscore,
-      optional($.legal_identifier_chars),
-    ),
+    identifier: $ => prec.left(seq(
+      $._letter_or_underscore,
+      optional($._legal_identifier_chars),
+    )),
 
-    identifier_list: $ => choice(
+    identifier_list: $ => prec.left(choice(
       $.identifier,
       seq(
         $.identifier,
+        ',',
         $.identifier_list,
       ),
       //$.tuple_grouped_identifier_list,
@@ -174,18 +174,15 @@ module.exports = grammar({
       //  $.tuple_grouped_identifier_list,
       //  $.identifier_list,
       //),
-    ),
+    )),
 
-    legal_identifier_chars: $ => repeat1(
-      choice(
-        $.letter_or_underscore,
-        $.digit,
-        '$',
-      )
-    ),
+    _legal_identifier_chars: $ => prec.left(seq(
+      $._letter_or_underscore,
+      optional($._legal_identifier_chars),
+    )),
 
-    letter_or_underscore: $ => choice(
-      $.letter,
+    _letter_or_underscore: $ => choice(
+      $._letter,
       '_',
     ),
 
@@ -194,11 +191,11 @@ module.exports = grammar({
         'int',
     ),
 
-    anything: $ => /.*/,
-    letter: $ => /[a-zA-Z]/,
-    digit: $ => /[\d]/,
-    binary_digit: $ => /[01]/,
-    number: $ => /[\d]./,
+    _anything: $ => /.*/,
+    _letter: $ => /[a-zA-Z]/,
+    _digit: $ => /[\d]/,
+    _binary_digit: $ => /[01]/,
+    _number: $ => /[\d]./,
     assignment_operator: $ => choice(
       '=',
       '+=',
