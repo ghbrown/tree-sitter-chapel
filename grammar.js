@@ -28,51 +28,120 @@ module.exports = grammar({
     function_definition: $ => seq(
       'proc',
       $.identifier,
-      $.parameter_list,
+      $.argument_list,
       $._type,
-      $.block
+      $.block_statement
     ),
 
-    parameter_list: $ => seq(
+    argument_list: $ => seq(
       '(',
-       // TODO: parameters
+      //eventually will be: optional($.formals),
       ')',
     ),
 
-    _type: $ => choice(
-        'bool',
-        'int',
-    ),
-
-    block: $ => seq(
-      '{',
-      repeat($._statement),
-      '}'
+    privacy_specifier: $ => choice(
+      'private',
+      'public',
     ),
 
     _statement: $ => choice(
+      $.block_statement,
+      $.expression_statement,
       $.variable_declaration_statement,
       $.return_statement,
       //$.if_statement
     ),
 
-    variable_declaration_statement: $ => choice(
-      seq(
-        $.variable_kind,
-        $.identifier,
-        ':',
-        $._type,
-        ';',
+    block_statement: $ => seq(
+      '{',
+      optional($.statements),
+      '}'
+    ),
+
+    expression_statement: $ => seq(
+      choice(
+        $.variable_expression,
+        //$.member_access_expression,
+        //$.call_expression,
+        //$.new_expression,
+        //$.let_expression,
       ),
+      ';',
+    ),
+
+    statements: $ => seq(
+      $._statement,
+      optional($.statements),
+    ),
+
+    variable_declaration_statement: $ => seq(
+      optional($.privacy_specifier),
+      //optional($.config-extern-or-export),
+      $.variable_kind,
+      $.variable_declaration_list,
+      ';',
+    ),
+
+    variable_declaration_list: $ => choice(
+      $.variable_declaration,
       seq(
-        $.variable_kind,
-        $.identifier,
-        ':',
-        $._type,
-        '=',
-        $._expression,
-        ';',
+        $.variable_declaration,
+        $.variable_declaration_list,
       ),
+    ),
+
+    variable_declaration: $ => seq(
+      $.identifier_list,
+      optional($.type_part),
+      optional($.initialization_part),
+    ),
+
+    type_part: $ => seq(
+      ':',
+      $.type_expression,
+    ),
+
+
+    initialization_part: $ => seq(
+      '=',
+      $._expression,
+    ),
+
+    _expression: $ => choice(
+      //$.literal_expression,
+      $.variable_expression,
+      //$.call_expression,
+      $.type_expression,
+    ),
+
+    variable_expression: $ => choice(
+      $.identifier,
+    ),
+
+    type_expression: $ => choice(
+      $.primitive_type,
+      //$.enum_type,
+      $._expression,
+    ),
+
+    primitive_type: $ => choice(
+      'void',
+      'nothing',
+      'bool',
+      'int', // TODO: make into seq(...,optional(...)) when primitive-type-parameter-part added
+      'uint',
+      'real',
+      'imag',
+      'complex',
+      'string',
+      'bytes',
+      'enum',
+      'record',
+      'class',
+      'owned',
+      'shared',
+      'unmanaged',
+      'borrowed',
     ),
 
     variable_kind: $ => choice(
@@ -85,35 +154,34 @@ module.exports = grammar({
 
     return_statement: $ => seq(
       'return',
-      $._expression,
-      ';'
+      optional($._expression),
+      ';',
     ),
 
-    _expression: $ => choice(
-      $.variable_expression,
-      $.number,
+    identifier: $ => seq(
+      $.letter_or_underscore,
+      optional($.legal_identifier_chars),
     ),
 
-    variable_expression: $ => choice(
+    identifier_list: $ => choice(
       $.identifier,
-    ),
-
-    // TODO: formal specification given in lexical structure docs
-    //identifier: $ => /[a-z]+/,
-    identifier: $ => choice(
-      $.letter_or_underscore,
       seq(
-        $.letter_or_underscore,
-        $.legal_identifier_chars,
+        $.identifier,
+        $.identifier_list,
       ),
+      //$.tuple_grouped_identifier_list,
+      //seq(
+      //  $.tuple_grouped_identifier_list,
+      //  $.identifier_list,
+      //),
     ),
 
-    // TODO: current version of legal_identifier_chars does not match
-    //       multiple characters
-    legal_identifier_chars: $ => choice(
-      $.letter_or_underscore,
-      $.digit,
-      '$',
+    legal_identifier_chars: $ => repeat1(
+      choice(
+        $.letter_or_underscore,
+        $.digit,
+        '$',
+      )
     ),
 
     letter_or_underscore: $ => choice(
@@ -121,10 +189,32 @@ module.exports = grammar({
       '_',
     ),
 
-    anything: $ =>/.*/,
+    _type: $ => choice(
+        'bool',
+        'int',
+    ),
+
+    anything: $ => /.*/,
     letter: $ => /[a-zA-Z]/,
     digit: $ => /[\d]/,
+    binary_digit: $ => /[01]/,
     number: $ => /[\d]./,
+    assignment_operator: $ => choice(
+      '=',
+      '+=',
+      '-=',
+      '*=',
+      '/=',
+      '%=',
+      '**=',
+      '&=',
+      '|=',
+      '^=',
+      '&&=',
+      '||=',
+      '<<=',
+      '>>=',
+    ),
 
   }
 });
