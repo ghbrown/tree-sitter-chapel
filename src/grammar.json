@@ -311,11 +311,28 @@
       "members": [
         {
           "type": "SYMBOL",
+          "name": "literal_expression"
+        },
+        {
+          "type": "SYMBOL",
           "name": "variable_expression"
         },
         {
           "type": "SYMBOL",
           "name": "type_expression"
+        }
+      ]
+    },
+    "literal_expression": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "bool_literal"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "integer_literal"
         }
       ]
     },
@@ -344,6 +361,28 @@
           }
         ]
       }
+    },
+    "bool_literal": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "true"
+        },
+        {
+          "type": "STRING",
+          "value": "false"
+        }
+      ]
+    },
+    "integer_literal": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_digits"
+        }
+      ]
     },
     "primitive_type": {
       "type": "CHOICE",
@@ -593,6 +632,67 @@
     "_number": {
       "type": "PATTERN",
       "value": "[\\d]."
+    },
+    "_digits": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_digit"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_digit"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_separator_digits"
+            }
+          ]
+        }
+      ]
+    },
+    "_separator_digits": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_digit"
+        },
+        {
+          "type": "STRING",
+          "value": "_"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_digit"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_separator_digits"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "_"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_separator_digits"
+            }
+          ]
+        }
+      ]
     },
     "assignment_operator": {
       "type": "CHOICE",

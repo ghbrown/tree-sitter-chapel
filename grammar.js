@@ -107,10 +107,22 @@ module.exports = grammar({
     )),
 
     _expression: $ => choice(
-      //$.literal_expression,
+      $.literal_expression,
       $.variable_expression,
       //$.call_expression,
       $.type_expression,
+    ),
+
+    literal_expression: $ => choice(
+      $.bool_literal,
+      $.integer_literal,
+      //$.real_literal,
+      //$.imaginary_literal,
+      //$.string_literal,
+      //$.bytes_literal,
+      //$.range_literal,
+      //$.domain_literal,
+      //$.array_literal,
     ),
 
     variable_expression: $ => choice(
@@ -122,6 +134,16 @@ module.exports = grammar({
       //$.enum_type,
       $._expression,
     )),
+
+    bool_literal: $ => choice(
+      'true',
+      'false',
+    ),
+
+    integer_literal: $ => choice(
+      $._digits,
+      // TODO: add other choices here
+    ),
 
     primitive_type: $ => choice(
       'void',
@@ -196,6 +218,27 @@ module.exports = grammar({
     _digit: $ => /[\d]/,
     _binary_digit: $ => /[01]/,
     _number: $ => /[\d]./,
+
+    _digits: $ => choice(
+      $._digit,
+      seq(
+        $._digit,
+        $._separator_digits,
+      ),
+    ),
+
+    _separator_digits: $=> choice(
+      $._digit,
+      '_',
+      seq(
+        $._digit,
+        $._separator_digits,
+      ),
+      seq(
+        '_',
+        $._separator_digits,
+      ),
+    ),
     assignment_operator: $ => choice(
       '=',
       '+=',

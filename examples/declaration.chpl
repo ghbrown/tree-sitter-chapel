@@ -1,3 +1,3 @@
 // this is a comment
 
-var abcdef : int;
+var abcdef : int = 2;
