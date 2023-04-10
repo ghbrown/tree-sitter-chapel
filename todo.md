@@ -1,6 +1,6 @@
 
 **Current bugs**:
-- none (that I know of) 
+- 
 
 **Priority of implementation**:
 - string-literal

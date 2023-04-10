@@ -118,7 +118,7 @@ module.exports = grammar({
       $.integer_literal,
       //$.real_literal,
       //$.imaginary_literal,
-      //$.string_literal,
+      $.string_literal,
       //$.bytes_literal,
       //$.range_literal,
       //$.domain_literal,
@@ -143,6 +143,52 @@ module.exports = grammar({
     integer_literal: $ => choice(
       $._digits,
       // TODO: add other choices here
+    ),
+
+    string_literal: $ => choice(
+      $.interpreted_string_literal,
+      //$.uninterpreted_string_literal,
+    ),
+
+    interpreted_string_literal: $ => choice(
+      seq(
+        '"',
+        optional($.double_quote_delimited_characters),
+        '"',
+      ),
+      seq(
+        '\'',
+        optional($.single_quote_delimited_characters),
+        '\'',
+      ),
+    ),
+
+    double_quote_delimited_characters: $ => choice(
+      seq(
+        $.string_character,
+        optional($.double_quote_delimited_characters),
+      ),
+      seq(
+        '\'',
+        optional($.double_quote_delimited_characters),
+      )
+    ),
+
+    single_quote_delimited_characters: $ => choice(
+      seq(
+        $.string_character,
+        optional($.single_quote_delimited_characters),
+      ),
+      seq(
+        '"',
+        optional($.single_quote_delimited_characters),
+      )
+    ),
+
+    string_character: $ => choice(
+      /[^'"\n]/,
+      //$.simple_escape_character,
+      //$.hexadecimal_escape_character,
     ),
 
     primitive_type: $ => choice(
@@ -179,7 +225,7 @@ module.exports = grammar({
       ';',
     ),
 
-    identifier: $ => prec.left(seq(
+    identifier: $ => (seq(
       $._letter_or_underscore,
       optional($._legal_identifier_chars),
     )),
@@ -198,10 +244,16 @@ module.exports = grammar({
       //),
     )),
 
-    _legal_identifier_chars: $ => prec.left(seq(
-      $._letter_or_underscore,
+    _legal_identifier_chars: $ => seq(
+      $._legal_identifier_char,
       optional($._legal_identifier_chars),
-    )),
+    ),
+
+    _legal_identifier_char: $ => choice(
+      $._letter_or_underscore,
+      $._digit,
+      '$',
+    ),
 
     _letter_or_underscore: $ => choice(
       $._letter,
