@@ -147,7 +147,7 @@ module.exports = grammar({
     //  $.identifier,
     //),
 
-  type_expression: $ => prec.left(PREC.type,choice(
+    type_expression: $ => prec.left(choice(
       $.primitive_type,
       //$.enum_type,
       $._expression, // ghb, this line may be causing hang, since type_expression and type_part have same precedence

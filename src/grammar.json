@@ -337,7 +337,7 @@
     },
     "type_expression": {
       "type": "PREC_LEFT",
-      "value": 3,
+      "value": 0,
       "content": {
         "type": "CHOICE",
         "members": [
