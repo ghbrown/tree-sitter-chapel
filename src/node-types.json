@@ -1,5 +1,10 @@
 [
   {
+    "type": "assignment_operator",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "block_statement",
     "named": true,
     "fields": {},
@@ -22,7 +27,17 @@
   {
     "type": "expression_statement",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "variable_expression",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "identifier_list",
@@ -56,7 +71,15 @@
           "named": true
         },
         {
+          "type": "lvalue_expression",
+          "named": true
+        },
+        {
           "type": "type_expression",
+          "named": true
+        },
+        {
+          "type": "variable_expression",
           "named": true
         }
       ]
@@ -105,6 +128,21 @@
     }
   },
   {
+    "type": "lvalue_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "variable_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "primitive_type",
     "named": true,
     "fields": {}
@@ -132,7 +170,15 @@
           "named": true
         },
         {
+          "type": "lvalue_expression",
+          "named": true
+        },
+        {
           "type": "type_expression",
+          "named": true
+        },
+        {
+          "type": "variable_expression",
           "named": true
         }
       ]
@@ -228,11 +274,19 @@
           "named": true
         },
         {
+          "type": "lvalue_expression",
+          "named": true
+        },
+        {
           "type": "primitive_type",
           "named": true
         },
         {
           "type": "type_expression",
+          "named": true
+        },
+        {
+          "type": "variable_expression",
           "named": true
         }
       ]
@@ -313,6 +367,21 @@
         },
         {
           "type": "variable_kind",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "variable_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
           "named": true
         }
       ]

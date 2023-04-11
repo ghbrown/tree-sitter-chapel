@@ -69,7 +69,7 @@ module.exports = grammar({
 
     expression_statement: $ => seq(
       choice(
-        //$.variable_expression,
+        $.variable_expression,
         //$.member_access_expression,
         //$.call_expression,
         //$.new_expression,
@@ -78,11 +78,11 @@ module.exports = grammar({
       ';',
     ),
 
-    //assignment_statement: $ => seq(
-    //  $.lvalue_expression,
-    //  $.assignment_operator,
-    //  $._expression,
-    //),
+    assignment_statement: $ => seq(
+      $.lvalue_expression,
+      $.assignment_operator,
+      $._expression,
+    ),
 
     statements: $ => seq(
       $._statement,
@@ -112,7 +112,6 @@ module.exports = grammar({
       optional($.initialization_part),
     ),
 
-    //type_part: $ => (seq(
     type_part: $ => prec(PREC.type,seq(
       ':',
       $.type_expression,
@@ -125,10 +124,10 @@ module.exports = grammar({
 
     _expression: $ => choice(
       $.literal_expression,
-      //$.variable_expression,
-      ////$.call_expression,
+      $.variable_expression,
+      //$.call_expression,
       $.type_expression,
-      //$.lvalue_expression,
+      $.lvalue_expression,
     ),
 
     literal_expression: $ => choice(
@@ -143,22 +142,22 @@ module.exports = grammar({
       //$.array_literal,
     ),
 
-    //variable_expression: $ => choice(
-    //  $.identifier,
-    //),
+    variable_expression: $ => choice(
+      $.identifier,
+    ),
 
     type_expression: $ => prec.left(choice(
       $.primitive_type,
       //$.enum_type,
-      $._expression, // ghb, this line may be causing hang, since type_expression and type_part have same precedence
+      $._expression,
     )),
 
-    //lvalue_expression: $ => prec(PREC.assign,choice(
-    //  $.variable_expression,
-    //  //$.member_access_expression,
-    //  //$.call_expression,
-    //  //$.parenthesized_expression,
-    //)),
+    lvalue_expression: $ => prec(PREC.assign,choice(
+      $.variable_expression,
+      //$.member_access_expression,
+      //$.call_expression,
+      //$.parenthesized_expression,
+    )),
 
     bool_literal: $ => choice(
       'true',
