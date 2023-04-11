@@ -55,7 +55,7 @@ module.exports = grammar({
     _statement: $ => choice(
       $.block_statement,
       $.expression_statement,
-      //$.assignment_statement,
+      $.assignment_statement,
       $.return_statement,
       $.variable_declaration_statement,
       //$.if_statement
@@ -78,11 +78,11 @@ module.exports = grammar({
       ';',
     ),
 
-    assignment_statement: $ => seq(
+    assignment_statement: $ => prec(PREC.assign,seq(
       $.lvalue_expression,
       $.assignment_operator,
       $._expression,
-    ),
+    )),
 
     statements: $ => seq(
       $._statement,

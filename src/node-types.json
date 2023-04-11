@@ -5,6 +5,37 @@
     "fields": {}
   },
   {
+    "type": "assignment_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        },
+        {
+          "type": "literal_expression",
+          "named": true
+        },
+        {
+          "type": "lvalue_expression",
+          "named": true
+        },
+        {
+          "type": "type_expression",
+          "named": true
+        },
+        {
+          "type": "variable_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "block_statement",
     "named": true,
     "fields": {},
@@ -193,6 +224,10 @@
       "required": false,
       "types": [
         {
+          "type": "assignment_statement",
+          "named": true
+        },
+        {
           "type": "block_statement",
           "named": true
         },
@@ -223,6 +258,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "assignment_statement",
+          "named": true
+        },
         {
           "type": "block_statement",
           "named": true

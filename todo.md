@@ -1,12 +1,12 @@
 
 **Current bugs**:
-- fix rat's nest of prec stuff (related to hanging when = used)
-- check if token() can/should be used anywhere (like identifier)
+-
 
 **Priority of implementation**:
-- assignment-statement
+- assignment-statement (ensure finished and working by writing example)
 - multiline comment
 - binary expression
+--- probably a good time to write some simple tests for some rules ---
 - procedures
 - call-expression
 - array-literal
