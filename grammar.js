@@ -1,3 +1,13 @@
+const PREC = {
+  assign:         2 ,
+  type:           3 ,
+  identifier:     4 ,
+  or:             5 ,
+  and:            6 ,
+  addition:       7 ,
+  multiply:       8 ,
+}
+
 module.exports = grammar({
   name: 'Chapel',
   rules: {
@@ -21,7 +31,7 @@ module.exports = grammar({
 
     argument_list: $ => seq(
       '(',
-      //eventually will be: optional($.formals),
+      //optional($.formals),
       ')',
     ),
 
@@ -45,6 +55,7 @@ module.exports = grammar({
     _statement: $ => choice(
       $.block_statement,
       $.expression_statement,
+      //$.assignment_statement,
       $.return_statement,
       $.variable_declaration_statement,
       //$.if_statement
@@ -58,7 +69,7 @@ module.exports = grammar({
 
     expression_statement: $ => seq(
       choice(
-        $.variable_expression,
+        //$.variable_expression,
         //$.member_access_expression,
         //$.call_expression,
         //$.new_expression,
@@ -66,6 +77,12 @@ module.exports = grammar({
       ),
       ';',
     ),
+
+    //assignment_statement: $ => seq(
+    //  $.lvalue_expression,
+    //  $.assignment_operator,
+    //  $._expression,
+    //),
 
     statements: $ => seq(
       $._statement,
@@ -95,28 +112,29 @@ module.exports = grammar({
       optional($.initialization_part),
     ),
 
-    type_part: $ => prec(3,seq(
+    //type_part: $ => (seq(
+    type_part: $ => prec(PREC.type,seq(
       ':',
       $.type_expression,
     )),
 
-
-    initialization_part: $ => prec(3,seq(
+    initialization_part: $ => prec(PREC.assign,seq(
       '=',
       $._expression,
     )),
 
     _expression: $ => choice(
       $.literal_expression,
-      $.variable_expression,
-      //$.call_expression,
+      //$.variable_expression,
+      ////$.call_expression,
       $.type_expression,
+      //$.lvalue_expression,
     ),
 
     literal_expression: $ => choice(
       $.bool_literal,
       $.integer_literal,
-      //$.real_literal,
+      $.real_literal,
       //$.imaginary_literal,
       $.string_literal,
       //$.bytes_literal,
@@ -125,15 +143,22 @@ module.exports = grammar({
       //$.array_literal,
     ),
 
-    variable_expression: $ => choice(
-      $.identifier,
-    ),
+    //variable_expression: $ => choice(
+    //  $.identifier,
+    //),
 
-    type_expression: $ => prec.left(choice(
+  type_expression: $ => prec.left(PREC.type,choice(
       $.primitive_type,
       //$.enum_type,
-      $._expression,
+      $._expression, // ghb, this line may be causing hang, since type_expression and type_part have same precedence
     )),
+
+    //lvalue_expression: $ => prec(PREC.assign,choice(
+    //  $.variable_expression,
+    //  //$.member_access_expression,
+    //  //$.call_expression,
+    //  //$.parenthesized_expression,
+    //)),
 
     bool_literal: $ => choice(
       'true',
@@ -145,6 +170,27 @@ module.exports = grammar({
       // TODO: add other choices here
     ),
 
+    real_literal: $ => choice(
+      seq(
+        optional($._digits),
+        '.',
+        $._digits,
+        optional($._exponent_part),
+      ),
+      seq(
+        $._digits,
+        optional('.'),
+        $._exponent_part,
+        // TODO: hexadecimal
+      ),
+    ),
+
+    _exponent_part: $ => seq(
+      choice('e','E'),
+      optional($._sign),
+      $._digits,
+    ),
+
     string_literal: $ => choice(
       $.interpreted_string_literal,
       //$.uninterpreted_string_literal,
@@ -153,39 +199,39 @@ module.exports = grammar({
     interpreted_string_literal: $ => choice(
       seq(
         '"',
-        optional($.double_quote_delimited_characters),
+        optional($._double_quote_delimited_characters),
         '"',
       ),
       seq(
         '\'',
-        optional($.single_quote_delimited_characters),
+        optional($._single_quote_delimited_characters),
         '\'',
       ),
     ),
 
-    double_quote_delimited_characters: $ => choice(
+    _double_quote_delimited_characters: $ => choice(
       seq(
-        $.string_character,
-        optional($.double_quote_delimited_characters),
+        $._string_character,
+        optional($._double_quote_delimited_characters),
       ),
       seq(
         '\'',
-        optional($.double_quote_delimited_characters),
+        optional($._double_quote_delimited_characters),
       )
     ),
 
-    single_quote_delimited_characters: $ => choice(
+    _single_quote_delimited_characters: $ => choice(
       seq(
-        $.string_character,
-        optional($.single_quote_delimited_characters),
+        $._string_character,
+        optional($._single_quote_delimited_characters),
       ),
       seq(
         '"',
-        optional($.single_quote_delimited_characters),
+        optional($._single_quote_delimited_characters),
       )
     ),
 
-    string_character: $ => choice(
+    _string_character: $ => choice(
       /[^'"\n]/,
       //$.simple_escape_character,
       //$.hexadecimal_escape_character,
@@ -225,12 +271,19 @@ module.exports = grammar({
       ';',
     ),
 
-    identifier: $ => (seq(
-      $._letter_or_underscore,
-      optional($._legal_identifier_chars),
+    identifier: $ => token(seq(
+      /[a-zA-z_]/,
+      optional(/[a-zA-z\d_$]*/),
     )),
 
-    identifier_list: $ => prec.left(choice(
+    // TODO: the above rule for identifier is functional for now, but if
+    // tree-sitter #449 is ever resolved, use the following instead:
+    //identifier: $ => token(seq(
+    //  $._letter_or_underscore,
+    //  optional($._legal_identifier_chars),
+    //),
+
+    identifier_list: $ => prec.left(PREC.identifier,choice(
       $.identifier,
       seq(
         $.identifier,
@@ -244,10 +297,10 @@ module.exports = grammar({
       //),
     )),
 
-    _legal_identifier_chars: $ => seq(
+    _legal_identifier_chars: $ => prec.left(PREC.identifier,seq(
       $._legal_identifier_char,
       optional($._legal_identifier_chars),
-    ),
+    )),
 
     _legal_identifier_char: $ => choice(
       $._letter_or_underscore,
@@ -260,26 +313,21 @@ module.exports = grammar({
       '_',
     ),
 
-    _type: $ => choice(
-        'bool',
-        'int',
-    ),
-
     _anything: $ => /.*/,
     _letter: $ => /[a-zA-Z]/,
     _digit: $ => /[\d]/,
     _binary_digit: $ => /[01]/,
     _number: $ => /[\d]./,
 
-    _digits: $ => choice(
+    _digits: $ => prec.left(choice(
       $._digit,
       seq(
         $._digit,
         $._separator_digits,
       ),
-    ),
+    )),
 
-    _separator_digits: $=> choice(
+    _separator_digits: $=> prec.left(choice(
       $._digit,
       '_',
       seq(
@@ -290,7 +338,13 @@ module.exports = grammar({
         '_',
         $._separator_digits,
       ),
+    )),
+
+    _sign: $ => choice(
+      '+',
+      '-',
     ),
+
     assignment_operator: $ => choice(
       '=',
       '+=',
