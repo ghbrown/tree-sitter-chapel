@@ -117,11 +117,6 @@
     }
   },
   {
-    "type": "inline_comment",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "integer_literal",
     "named": true,
     "fields": {}
@@ -225,6 +220,10 @@
       "types": [
         {
           "type": "assignment_statement",
+          "named": true
+        },
+        {
+          "type": "block_comment",
           "named": true
         },
         {
@@ -496,10 +495,6 @@
     "named": false
   },
   {
-    "type": "//",
-    "named": false
-  },
-  {
     "type": "/=",
     "named": false
   },
@@ -534,6 +529,10 @@
   {
     "type": "_",
     "named": false
+  },
+  {
+    "type": "block_comment",
+    "named": true
   },
   {
     "type": "bool",
@@ -594,6 +593,10 @@
   {
     "type": "inline",
     "named": false
+  },
+  {
+    "type": "inline_comment",
+    "named": true
   },
   {
     "type": "int",

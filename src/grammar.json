@@ -23,21 +23,48 @@
         {
           "type": "SYMBOL",
           "name": "inline_comment"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "block_comment"
         }
       ]
     },
     "inline_comment": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "//"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_anything"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "//"
+          },
+          {
+            "type": "PATTERN",
+            "value": "(\\\\(.|\\r?\\n)|[^\\\\\\n])*"
+          }
+        ]
+      }
+    },
+    "block_comment": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "/*"
+          },
+          {
+            "type": "PATTERN",
+            "value": "[^*]*\\*+([^/*][^*]*\\*+)*"
+          },
+          {
+            "type": "STRING",
+            "value": "/"
+          }
+        ]
+      }
     },
     "argument_list": {
       "type": "SEQ",
@@ -184,6 +211,10 @@
           {
             "type": "SYMBOL",
             "name": "_expression"
+          },
+          {
+            "type": "STRING",
+            "value": ";"
           }
         ]
       }
@@ -374,13 +405,8 @@
       ]
     },
     "variable_expression": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "identifier"
-        }
-      ]
+      "type": "SYMBOL",
+      "name": "identifier"
     },
     "type_expression": {
       "type": "PREC_LEFT",
@@ -426,13 +452,17 @@
       ]
     },
     "integer_literal": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "_digits"
-        }
-      ]
+      "type": "PREC_LEFT",
+      "value": 0,
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "_digits"
+          }
+        ]
+      }
     },
     "real_literal": {
       "type": "CHOICE",
@@ -949,10 +979,6 @@
     "_binary_digit": {
       "type": "PATTERN",
       "value": "[01]"
-    },
-    "_number": {
-      "type": "PATTERN",
-      "value": "[\\d]."
     },
     "_digits": {
       "type": "PREC_LEFT",

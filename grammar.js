@@ -2,10 +2,16 @@ const PREC = {
   assign:         2 ,
   type:           3 ,
   identifier:     4 ,
+  binary:         5 ,
   or:             5 ,
   and:            6 ,
-  addition:       7 ,
-  multiply:       8 ,
+  comparative:    7 ,
+  bitwise:        8 ,
+  bitshift:       9 ,
+  by:             10,
+  count:          11,
+  addition:       12,
+  multiply:       13,
 }
 
 module.exports = grammar({
@@ -21,13 +27,20 @@ module.exports = grammar({
 
     _comment: $ => choice(
       $.inline_comment,
-      //$.block_comment,
+      $.block_comment,
     ),
 
-    inline_comment: $ => seq(
+    // http://stackoverflow.com/questions/13014947/regex-to-match-a-c-style-multiline-comment/36328890#36328890
+    inline_comment: $ => token(seq(
       '//',
-      $._anything,
-    ),
+      /(\\(.|\r?\n)|[^\\\n])*/
+    )),
+
+    block_comment: $ => token(seq(
+      '/*',
+      /[^*]*\*+([^/*][^*]*\*+)*/,
+      '/'
+    )),
 
     argument_list: $ => seq(
       '(',
@@ -82,6 +95,7 @@ module.exports = grammar({
       $.lvalue_expression,
       $.assignment_operator,
       $._expression,
+      ';', // TODO: final ';' not in docs, but needed to avoid error on "a = 6;"
     )),
 
     statements: $ => seq(
@@ -128,6 +142,7 @@ module.exports = grammar({
       //$.call_expression,
       $.type_expression,
       $.lvalue_expression,
+      // $.binary_expression,
     ),
 
     literal_expression: $ => choice(
@@ -142,9 +157,7 @@ module.exports = grammar({
       //$.array_literal,
     ),
 
-    variable_expression: $ => choice(
-      $.identifier,
-    ),
+    variable_expression: $ => $.identifier,
 
     type_expression: $ => prec.left(choice(
       $.primitive_type,
@@ -159,15 +172,21 @@ module.exports = grammar({
       //$.parenthesized_expression,
     )),
 
+    // binary_expression: $ => prec(PREC.binary,seq(
+    //   $._expression,
+    //   $.binary_operator,
+    //   $._expression,
+    // )),
+
     bool_literal: $ => choice(
       'true',
       'false',
     ),
 
-    integer_literal: $ => choice(
+    integer_literal: $ => prec.left(choice(
       $._digits,
       // TODO: add other choices here
-    ),
+    )),
 
     real_literal: $ => choice(
       seq(
@@ -180,8 +199,8 @@ module.exports = grammar({
         $._digits,
         optional('.'),
         $._exponent_part,
-        // TODO: hexadecimal
       ),
+      // TODO: hexadecimal
     ),
 
     _exponent_part: $ => seq(
@@ -316,7 +335,6 @@ module.exports = grammar({
     _letter: $ => /[a-zA-Z]/,
     _digit: $ => /[\d]/,
     _binary_digit: $ => /[01]/,
-    _number: $ => /[\d]./,
 
     _digits: $ => prec.left(choice(
       $._digit,
@@ -360,6 +378,42 @@ module.exports = grammar({
       '<<=',
       '>>=',
     ),
+
+    // binary_operator: $ => {
+    //   const table = [
+    //     ['+',  PREC.addition],
+    //     ['-',  PREC.addition],
+    //     ['*',  PREC.multiply],
+    //     ['/',  PREC.multiply],
+    //     ['%',  PREC.multiply],
+    //     ['**', PREC.multiply],
+    //     ['&',  PREC.bitwise],
+    //     ['|',  PREC.bitwise],
+    //     ['^',  PREC.bitwise],
+    //     ['<<', PREC.bitshift],
+    //     ['>>', PREC.bitshift],
+    //     ['&&', PREC.and],
+    //     ['||', PREC.or],
+    //     ['==', PREC.comparative],
+    //     ['!=', PREC.comparative],
+    //     ['<=', PREC.comparative],
+    //     ['>=', PREC.comparative],
+    //     ['<',  PREC.comparative],
+    //     ['>',  PREC.comparative],
+    //     ['by', PREC.by],
+    //     ['#', PREC.count],
+    //   ];
+
+    //   return choice(
+    //     ...table.map(([operator, precedence]) =>
+    //       prec.left(
+    //         precedence,
+    //         seq(
+    //           $._expression,
+    //           operator,
+    //           $._expression,
+    //         ))));
+    // },
 
   }
 });

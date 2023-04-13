@@ -1,12 +1,20 @@
 
 **Current bugs**:
--
+- rat's nest of precendences I don't understand (mainly how to choose them
+  intelligently)
+
+====> solution: write tests that slightly push
+                complications and boundaries, turn binary operators back on
 
 **Priority of implementation**:
-- assignment-statement (ensure finished and working by writing example)
-- multiline comment
+- write tests for existing rules
+  - more variable declaration tests
+    - add types
+    - add initialization expression
+  - literal tests
+    - integers
+    - reals
 - binary expression
---- probably a good time to write some simple tests for some rules ---
 - procedures
 - call-expression
 - array-literal
